@@ -72,6 +72,7 @@ classdef rocket
             dt = 0.01;
             z = obj.position(3);
             obj.acceleration = obj.gravity + obj.thrust;
+            obj.motion = [];
             
             while z > 0
                 x = obj.position(1);
@@ -81,16 +82,27 @@ classdef rocket
                 state = [x; y; z];
                 state = vertcat(state, obj.velocity', obj.acceleration');
                 
-                obj.position = obj.position + obj.velocity * dt;
-                obj.velocity = obj.velocity + obj.acceleration * dt;
-                obj.acceleration = obj.gravity + obj.thrust;
-                
-                obj.thrust = obj.ctrl.calc_thrust(obj);
-                
                 obj.motion = horzcat(obj.motion, state);
+                
+                obj.ctrl = obj.ctrl.calc_thrust(obj);
+                obj.thrust = obj.ctrl.get_thrust;
+                
+                obj.acceleration = obj.gravity + obj.thrust;
+                obj.velocity = obj.velocity + obj.acceleration * dt;
+                obj.position = obj.position + obj.velocity * dt;
+
             end
             
-            if length(obj.motion) == 0
+            x = obj.position(1);
+            y = obj.position(2);
+            z = obj.position(3);
+                
+            state = [x; y; z];
+            state = vertcat(state, obj.velocity', obj.acceleration');
+                
+            obj.motion = horzcat(obj.motion, state);
+            
+            if isempty(obj.motion)
                 obj.motion = zeros(9, 1);
             end
             
@@ -110,13 +122,17 @@ classdef rocket
         end
         
         function plot_motion(obj, ax, al, ve, ac)
+            cla(ax);
+            cla(al);
+            cla(ve);
+            cla(ac);
             
             x = obj.motion(1, :);
             y = obj.motion(2, :);
             z = obj.motion(3, :);
             
             for k = 1:length(x)
-                plot3(ax, x(k), y(k), z(k), "*b");
+                plot3(ax, x(k), y(k), z(k), "b*");
                 
                 ax.XGrid = "on";
                 ax.YGrid = "on";
