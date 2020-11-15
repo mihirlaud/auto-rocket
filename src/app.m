@@ -57,7 +57,7 @@ function app
             v_0 = eval(strcat("[", v_input.String, "]"));
         
             rkt = rocket(p_0, v_0);
-            rkt = rkt.add_controls(10, 0, 0);
+            rkt = rkt.add_controls;
             
             delete(gcf);
         end

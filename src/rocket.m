@@ -62,8 +62,8 @@ classdef rocket
             obj.thrust = new_thrust;
         end
         
-        function obj = add_controls(obj, kP, kI, kD)
-            ctrl = controls(kP, kI, kD);
+        function obj = add_controls(obj)
+            ctrl = controls(obj);
             obj.ctrl = ctrl;
         end
         
@@ -140,9 +140,8 @@ classdef rocket
                 
                 xlim(ax, [min(x) - 5, max(x) + 5]);
                 ylim(ax, [min(y) - 5, max(y) + 5]);
-                zlim(ax, [min(z) - 5, max(z) + 5]);
+                zlim(ax, [min(z), max(z) + 5]);
                 
-                hold(ax, "on");
                 
                 pause(0.05);
             end

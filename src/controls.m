@@ -3,19 +3,19 @@ classdef controls
     %   Detailed explanation goes here
     
     properties (GetAccess=private)
-        kP
-        kI
-        kD
+        threshold
         thrust
     end
     
     methods
-        function obj = controls(kP, kI, kD)
+        function obj = controls(rkt)
             %CONTROLS Construct an instance of this class
             %   Detailed explanation goes here
-            obj.kP = kP;
-            obj.kI = kI;
-            obj.kD = kD;
+            pos = rkt.get_position;
+            vel = rkt.get_velocity;
+            
+            apogee = pos(3) + vel(3) ^ 2 / 19.6;
+            obj.threshold = apogee * 0.8;
             obj.thrust = 0;
         end
         
@@ -25,13 +25,18 @@ classdef controls
             pos = rkt.get_position;
             vel = rkt.get_velocity;
             
-            if pos(3) <= 200
-                if obj.thrust == 0
-                    obj.thrust = 9.8 + vel(3) ^ 2 / 400;
+            if pos(3) <= obj.threshold
+                if abs(vel(3)) > 1
+                    if obj.thrust == 0
+                        obj.thrust = 9.8 + vel(3) ^ 2 / (2 * obj.threshold);
+                    end
+                else
+                    obj.thrust = 9.8;
                 end
             else
                 obj.thrust = 0;
             end
+                
         end
         
         function thrust = get_thrust(obj)
