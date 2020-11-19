@@ -3,11 +3,12 @@ classdef rocket
     %   Contains position, velocity, and acceleration of the
     %   constructed rocket.
     
-    properties %(GetAccess=private)
+    properties (GetAccess=private)
+        mass % Scalar representing the mass of the rocket
         position % Vector representing position in a 3D coordinate space
         velocity % Vector representing velocity in a 3D coordinate space
         acceleration % Vector representing acceleration in a 3D coordinate space
-        thrust % Vectore representing thrust in a 3D coordinate space
+        thrust % Vector representing thrust in a 3D coordinate space
         motion % Matrix containing rocket's motion, initially zeros
         ctrl % Control system for landing the rocket
     end
@@ -21,6 +22,7 @@ classdef rocket
             %ROCKET Construct an instance of this class
             %   Takes in position, velocity, and acceleration as an argument
             if nargin == 2
+                obj.mass = 100;
                 obj.position = cell2mat(varargin(1));
                 obj.velocity = cell2mat(varargin(2));
                 obj.acceleration = zeros(1, 3);
@@ -28,6 +30,7 @@ classdef rocket
                 obj.motion = [];
                 obj.ctrl = false;
             elseif nargin == 0
+                obj.mass = 100;
                 obj.position = zeros(1, 3);
                 obj.velocity = zeros(1, 3);
                 obj.acceleration = zeros(1, 3);
@@ -62,9 +65,20 @@ classdef rocket
             obj.thrust = new_thrust;
         end
         
-        function obj = add_controls(obj)
-            ctrl = controls(obj);
-            obj.ctrl = ctrl;
+        function outputArg = get_mass(obj)
+            outputArg = obj.mass;
+        end
+        
+        function obj = add_controls(obj, varargin)
+            if nargin == 1
+                ctrl = controls(obj, 1);
+                obj.ctrl = ctrl;
+            elseif nargin == 2
+                ctrl = controls(obj, varargin(1));
+                obj.ctrl = ctrl;
+            else
+                disp("Error: incorrect number of arguments");
+            end
         end
         
         function obj = simulate(obj)
@@ -87,7 +101,7 @@ classdef rocket
                 obj.ctrl = obj.ctrl.calc_thrust(obj);
                 obj.thrust = obj.ctrl.get_thrust;
                 
-                obj.acceleration = obj.gravity + obj.thrust;
+                obj.acceleration = obj.gravity + obj.thrust / obj.mass;
                 obj.velocity = obj.velocity + obj.acceleration * dt;
                 obj.position = obj.position + obj.velocity * dt;
 

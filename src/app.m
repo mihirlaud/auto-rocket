@@ -25,7 +25,7 @@ function app
 
     rkt = rocket;
     
-    function create_Callback(source, eventdata)
+    function create_Callback(~, ~)
         d = dialog('Position',[300 300 250 150],'Name','My Dialog');
 
         p_txt = uicontrol('Parent',d,...
@@ -45,25 +45,40 @@ function app
                'Style','edit',...
                'Position',[90 105 100 20],...
                'String','0, 0, 0');
+        
+        sel = uicontrol('Parent',d,...
+               'Position',[50 55 140 25],...
+               'String','Select Controls...',...
+               'Callback',{@select_Callback});
 
         btn = uicontrol('Parent',d,...
                'Position',[85 20 70 25],...
                'String','Create',...
                'Callback',{@dialog_Callback});
         
-        function dialog_Callback(source, eventdata)
+        selection = 1;
+           
+        function dialog_Callback(~, ~)
             
             p_0 = eval(strcat("[", p_input.String, "]"));
             v_0 = eval(strcat("[", v_input.String, "]"));
         
             rkt = rocket(p_0, v_0);
-            rkt = rkt.add_controls;
+            rkt = rkt.add_controls(selection);
             
             delete(gcf);
         end
+        
+        function select_Callback(~, ~)
+            
+            selection = menu("Select Control System:",...
+                             "Kinematic Vertical Control",...
+                             "Kinematic Total Control",...
+                             "Gravity Turn");
+        end
     end
     
-    function simulate_Callback(source, eventdata)
+    function simulate_Callback(~, ~)
         rkt = rkt.simulate;
         rkt.plot_motion(ax, al, ve, ac);
     end
