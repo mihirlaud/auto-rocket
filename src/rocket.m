@@ -4,7 +4,9 @@ classdef rocket
     %   constructed rocket.
     
     properties (GetAccess=private)
-        mass % Scalar representing the mass of the rocket
+        dry_mass % Scalar representing the dry mass of the rocket
+        fuel_mass % Scalar representing the mass of fuel onboard the rocket
+        mass % Scalar representing the total mass of the rocket
         position % Vector representing position in a 3D coordinate space
         velocity % Vector representing velocity in a 3D coordinate space
         acceleration % Vector representing acceleration in a 3D coordinate space
@@ -15,6 +17,7 @@ classdef rocket
     
     properties (Constant)
         gravity = [0 0 -9.8]
+        sfc = 1 / (9.8 * 282)
     end
     
     methods
@@ -22,7 +25,9 @@ classdef rocket
             %ROCKET Construct an instance of this class
             %   Takes in position, velocity, and acceleration as an argument
             if nargin == 2
-                obj.mass = 100;
+                obj.dry_mass = 2700;
+                obj.fuel_mass = 300;
+                obj.mass = obj.dry_mass + obj.fuel_mass;
                 obj.position = cell2mat(varargin(1));
                 obj.velocity = cell2mat(varargin(2));
                 obj.acceleration = zeros(1, 3);
@@ -30,7 +35,9 @@ classdef rocket
                 obj.motion = [];
                 obj.ctrl = false;
             elseif nargin == 0
-                obj.mass = 100;
+                obj.dry_mass = 2700;
+                obj.fuel_mass = 300;
+                obj.mass = obj.dry_mass + obj.fuel_mass;
                 obj.position = zeros(1, 3);
                 obj.velocity = zeros(1, 3);
                 obj.acceleration = zeros(1, 3);
@@ -101,9 +108,18 @@ classdef rocket
                 obj.ctrl = obj.ctrl.calc_thrust(obj);
                 obj.thrust = obj.ctrl.get_thrust;
                 
+                if obj.fuel_mass > 0
+                    obj.fuel_mass = obj.fuel_mass - obj.sfc * norm(obj.thrust) * 0.01;
+                    obj.mass = obj.dry_mass + obj.fuel_mass;
+                else
+                    obj.thrust = [0, 0, 0];
+                    obj.mass
+                end
+                
                 obj.acceleration = obj.gravity + obj.thrust / obj.mass;
                 obj.velocity = obj.velocity + obj.acceleration * dt;
                 obj.position = obj.position + obj.velocity * dt;
+                
 
             end
             
@@ -133,6 +149,7 @@ classdef rocket
                     'String','Close',...
                     'Callback','delete(gcf)');
             end
+            
         end
         
         function plot_motion(obj, ax, al, ve, ac)

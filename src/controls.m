@@ -16,9 +16,8 @@ classdef controls
             vel = rkt.get_velocity;
             
             apogee = pos(3) + vel(3) ^ 2 / 19.6;
-            apogee
             obj.threshold = apogee * 0.8;
-            obj.thrust = 0;
+            obj.thrust = [];
             if isa(system, "cell")
                 obj.system = system{1};
             else
@@ -35,7 +34,7 @@ classdef controls
            
                 if pos(3) <= obj.threshold && vel(3) < 0
                     if abs(vel(3)) > 1
-                        if obj.thrust == 0
+                        if obj.thrust == [0, 0, 0]
                             obj.thrust = rkt.get_mass * [0, 0, 9.8 + vel(3) ^ 2 / (2 * pos(3))];
                         end
                     else
@@ -44,8 +43,40 @@ classdef controls
                 else
                     obj.thrust = [0, 0, 0];
                 end
-            else
+            elseif obj.system == 2
+                pos = rkt.get_position;
+                vel = rkt.get_velocity;
                 
+                if abs(vel(2)) < 0.577
+                    obj.thrust(1) = 0;
+                end
+                
+                if abs(vel(2)) < 0.577
+                    obj.thrust(2) = 0;
+                end
+           
+                if pos(3) <= obj.threshold && vel(3) < 0
+                    if abs(vel(3)) > 0.577
+                        if obj.thrust == [0, 0, 0]
+                            z_thrust = vel(3) ^ 2 / (2 * pos(3));
+                            t = -1 * vel(3) / z_thrust;
+                            
+                            x_thrust = -1 * vel(1) / t;
+                                
+                            y_thrust = -1 * vel(2) / t;
+                            
+                            
+                            obj.thrust = rkt.get_mass * [...
+                                x_thrust,... 
+                                y_thrust,...
+                                9.8 + z_thrust];
+                        end
+                    else
+                        obj.thrust(3) = rkt.get_mass * 9.8;
+                    end
+                else
+                    obj.thrust = [0, 0, 0];
+                end
             end
                 
         end
