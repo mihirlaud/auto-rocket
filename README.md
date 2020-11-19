@@ -8,7 +8,14 @@ A MATLAB control system for landing a simulated rocket. Created by [Mihir Laud](
 
 ## Features
 
-### Implemented
+### Implemented :white_check_mark:
+* User-defined initial position and velocity
 * Kinematics-based control system in all dimensions
 
-### Planned
+### To-Do :hourglass_flowing_sand:
+* Gravity turn control system
+* GFOLD
+* Pinpoint landing
+* Greater user control over variables (gravity, air resistance, etc.)
+* Real-time motion vs time graphing
+* Orientation graphs
