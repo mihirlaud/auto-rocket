@@ -47,7 +47,7 @@ classdef controls
                 pos = rkt.get_position;
                 vel = rkt.get_velocity;
                 
-                if abs(vel(2)) < 0.577
+                if abs(vel(1)) < 0.577
                     obj.thrust(1) = 0;
                 end
                 
