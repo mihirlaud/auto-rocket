@@ -113,7 +113,6 @@ classdef rocket
                     obj.mass = obj.dry_mass + obj.fuel_mass;
                 else
                     obj.thrust = [0, 0, 0];
-                    obj.mass
                 end
                 
                 obj.acceleration = obj.gravity + obj.thrust / obj.mass;
@@ -139,10 +138,16 @@ classdef rocket
             if norm(obj.velocity) > 1
                 d = dialog('Position',[300 300 250 150],'Name','My Dialog');
 
+                if obj.fuel_mass <= 0
+                    txt_str = 'Rocket crashed. Ran out of fuel.';
+                else
+                    txt_str = 'Rocket crashed. Controls failed to reduce speed';
+                end
+                
                 txt = uicontrol('Parent',d,...
                     'Style','text',...
                     'Position',[20 80 210 40],...
-                    'String','Rocket crashed into ground.');
+                    'String', txt_str);
 
                 btn = uicontrol('Parent',d,...
                     'Position',[85 20 70 25],...
@@ -158,9 +163,15 @@ classdef rocket
             cla(ve);
             cla(ac);
             
+            hold(al, "on");
+            hold(ve, "on");
+            hold(ac, "on");
+            
             x = obj.motion(1, :);
             y = obj.motion(2, :);
             z = obj.motion(3, :);
+            vz = obj.motion(6, :);
+            az = obj.motion(9, :);
             
             for k = 1:length(x)
                 plot3(ax, x(k), y(k), z(k), "b*");
@@ -173,19 +184,30 @@ classdef rocket
                 ylim(ax, [min(y) - 5, max(y) + 5]);
                 zlim(ax, [min(z), max(z) + 5]);
                 
-                
                 pause(0.05);
             end
             
-            plot(al, 0:0.01:((length(z) - 1)/100), z);
+            pause(1);
+            
+            plot3(ax, x, y, z, "b");
+            
+            ax.XGrid = "on";
+            ax.YGrid = "on";
+            ax.ZGrid = "on";
+              
+            xlim(ax, [min(x) - 5, max(x) + 5]);
+            ylim(ax, [min(y) - 5, max(y) + 5]);
+            zlim(ax, [min(z), max(z) + 5]);
+            
+            plot(al, 0:0.01:((length(z) - 1)/100), z, "r");
             al.XGrid = "on";
             al.YGrid = "on";
             
-            plot(ve, 0:0.01:((length(z) - 1)/100), obj.motion(6, :));
+            plot(ve, 0:0.01:((length(z) - 1)/100), vz, "r");
             ve.XGrid = "on";
             ve.YGrid = "on";
             
-            plot(ac, 0:0.01:((length(z) - 1)/100), obj.motion(9, :));
+            plot(ac, 0:0.01:((length(z) - 1)/100), az, "r");
             ac.XGrid = "on";
             ac.YGrid = "on";
         end

@@ -17,11 +17,15 @@ classdef controls
             
             apogee = pos(3) + vel(3) ^ 2 / 19.6;
             obj.threshold = apogee * 0.8;
-            obj.thrust = [];
+            obj.thrust = [0, 0, 0];
             if isa(system, "cell")
                 obj.system = system{1};
             else
                 obj.system = system;
+            end
+            
+            if obj.system == 3
+                obj.threshold = pos(3);
             end
         end
         
@@ -76,6 +80,17 @@ classdef controls
                     end
                 else
                     obj.thrust = [0, 0, 0];
+                end
+            elseif obj.system == 3
+                vel = rkt.get_velocity;
+                if norm(vel) > 1
+                    if obj.thrust == [0, 0, 0]
+                        obj.thrust = rkt.get_mass * -0.71 * vel;
+                    else
+                        obj.thrust = norm(obj.thrust) * -1 * vel / norm(vel);
+                    end
+                else
+                    obj.thrust = rkt.get_mass * [0, 0, 9.8];
                 end
             end
                 
